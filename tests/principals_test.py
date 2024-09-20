@@ -1,5 +1,12 @@
 from core.models.assignments import AssignmentStateEnum, GradeEnum
+from core.models.principals import Principal
 
+def test_principal_repr():
+    # Create an instance of Principal
+    principal = Principal(id=1)
+
+    # Check the __repr__ output
+    assert repr(principal) == '<Principal 1>'
 
 def test_get_assignments(client, h_principal):
     response = client.get(
@@ -60,3 +67,11 @@ def test_regrade_assignment(client, h_principal):
 
     assert response.json['data']['state'] == AssignmentStateEnum.GRADED.value
     assert response.json['data']['grade'] == GradeEnum.B
+
+def test_get_teachers(client, h_principal):
+    response = client.get(
+        '/principal/teachers',
+        headers=h_principal
+    )
+
+    assert response.status_code == 200

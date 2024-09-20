@@ -1,3 +1,30 @@
+from core.models.assignments import Assignment
+from core.models.teachers import Teacher
+
+def test_assignment_repr():
+    # Create an instance of Assignment
+    assignment = Assignment(id=1)
+
+    # Check the __repr__ output
+    assert repr(assignment) == '<Assignment 1>'
+
+def test_teacher_repr():
+    # Create an instance of Teacher
+    teacher = Teacher(id=1)
+
+    # Check the __repr__ output
+    assert repr(teacher) == '<Teacher 1>'
+
+#unauthorized access
+def test_get_assignments_by_unauth_teacher(client):
+    response = client.get(
+        '/teacher/assignments',
+        headers= None
+    )
+
+    assert response.status_code == 401
+
+    
 def test_get_assignments_teacher_1(client, h_teacher_1):
     response = client.get(
         '/teacher/assignments',
@@ -99,3 +126,19 @@ def test_grade_assignment_draft_assignment(client, h_teacher_1):
     data = response.json
 
     assert data['error'] == 'FyleError'
+
+def test_grade_assignment_draft_assignment(client, h_teacher_1):
+    """
+    failure case: only a submitted assignment can be graded
+    """
+    response = client.post(
+        '/teacher/assignments/grade',
+        headers=h_teacher_1
+        , json={
+            "id": 1,
+            "grade": "A"
+        }
+    )
+
+    assert response.status_code == 200
+    
